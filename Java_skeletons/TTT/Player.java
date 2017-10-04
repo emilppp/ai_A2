@@ -1,4 +1,5 @@
 import java.util.*;
+import java.lang.Math;
 
 public class Player {
     /**
@@ -24,7 +25,9 @@ public class Player {
          * the best next state. This skeleton returns a random move instead.
          */
         //  nextStates.elementAt(random.nextInt(nextStates.size()));
-        return minmax(gameState, nextStates);
+        int alpha = -INTEGER.MAX_VALUE;
+        int beta = INTEGER.MAX_VALUE;
+        return minmax(gameState, nextStates, 4, alpha, beta, gameState.getNextPlayer());
     }
     
     public int minmax(GameState gameState, Vector<GameState> nextStates, int depth, int alpha, int beta, int player) {
@@ -34,13 +37,26 @@ public class Player {
 
         if(depth == 0 || nextStates.isEmpty()) {
             v = eval(gameState, player);
+            //player a
         } else if (player == 0) {
             v = -INTEGER.MAX_VALUE;
-        }
-            
-
-        
-
+            for(gameState g : nextStates) {
+                v = Math.max(v, minmax(g, nextStates, depth-1, alpha, beta, 1));
+                alpha = max(alpha, v);
+                if(beta <= alpha)
+                    break;
+            }
+            //player b
+        } else {
+            v = INTEGER.MAX_VALUE;
+            for(gameState g : nextStates) {
+                v = Math.min(v, minmax(g, nextStates, depth-1, alpha, beta, 0));
+                beta = Math.min(beta, v);
+                if(beta <= alpha) 
+                    break;
+            }
+        } 
+        return v;
 
     }
 

@@ -31,7 +31,7 @@ public class Player {
         int alpha = -Integer.MAX_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        int depth = 4;
+        int depth = 2;
         index = 0;
 
         //Random random = new Random();
@@ -46,6 +46,7 @@ public class Player {
         //Random random = new Random();
        // return nextStates.elementAt(random.nextInt(nextStates.size()));
         int v = 0;
+        index = 0;
 
         if(depth == 0 || nextStates.isEmpty()) {
             v = eval(gameState, player);
@@ -74,6 +75,7 @@ public class Player {
                     break;
             }
         }
+        // System.err.println("Index: " + v );
         return v;
     }
 
@@ -89,16 +91,18 @@ public class Player {
                 combinations[4 + i] += checkCell(gameState, player, j, i);
             }
             combinations[8] += checkCell(gameState, player, i, i);
-            combinations[9] += checkCell(gameState, player, n - i, n - i);
+            combinations[9] += checkCell(gameState, player, n - i, i);
         }
         int max = 0;
-        //System.err.println("New state");
+        System.err.println("New state");
         for(int i : combinations) {
-          //System.err.println("Comb: " + i);
+          System.err.println("Comb: " + i);
           if(i > max) {
             max = i;
           }
         }
+        System.err.println("-_-_-_-_-_-_-_-_");
+
         //return Math.max(Math.max(row, col), Math.max(row, diag));
         return max;
     }
@@ -111,7 +115,7 @@ public class Player {
         return 0;
       }
       else {
-        return -10;
+        return -100;
       }
     }
 }

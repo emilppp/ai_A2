@@ -12,8 +12,6 @@ public class Player {
      * @return the next state the board is in after our move
      */
 
-     private int index = 0;
-
     public GameState play(final GameState gameState, final Deadline deadline) {
         Vector<GameState> nextStates = new Vector<GameState>();
         gameState.findPossibleMoves(nextStates);
@@ -31,34 +29,40 @@ public class Player {
         int alpha = -Integer.MAX_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        int depth = 2;
-        index = 0;
+        int depth = 1;
 
         //Random random = new Random();
        // return nextStates.elementAt(random.nextInt(nextStates.size()));
 
-       int val = minmax(gameState, nextStates, depth, alpha, beta, gameState.getNextPlayer());
-       return nextStates.elementAt(index);
+       int index = 0;
+       int max = 0;
 
+       for(int i = 0; i < nextStates.size(); i++) {
+         int val = minmax(nextStates.get(i), depth, alpha, beta, gameState.getNextPlayer());
+         if(val > max) {
+           max = val;
+           index = i;
+         }
+       }
+       return nextStates.elementAt(index);
     }
 
-    public int minmax(GameState gameState, Vector<GameState> nextStates, int depth, int alpha, int beta, int player) {
+    public int minmax(GameState gameState, int depth, int alpha, int beta, int player) {
+      Vector<GameState> nextStates = new Vector<GameState>();
+      gameState.findPossibleMoves(nextStates);
+
         //Random random = new Random();
        // return nextStates.elementAt(random.nextInt(nextStates.size()));
         int v = 0;
-        index = 0;
 
         if(depth == 0 || nextStates.isEmpty()) {
             v = eval(gameState, player);
             //player a
         } else if (player == 1) {
-            v = -Integer.MAX_VALUE;
+            v = Integer.MIN_VALUE;
             for(GameState g : nextStates) {
-                v = Math.max(v, minmax(g, nextStates, depth-1, alpha, beta, 2));
-                if(v > alpha) {
-                  alpha = v;
-                  index = nextStates.indexOf(g);
-                }
+                v = Math.max(v, minmax(g, depth-1, alpha, beta, 2));
+                alpha = Math.max(v, alpha);
                 if(beta <= alpha)
                     break;
             }
@@ -66,11 +70,8 @@ public class Player {
         } else {
             v = Integer.MAX_VALUE;
             for(GameState g : nextStates) {
-              v = Math.min(v, minmax(g, nextStates, depth-1, alpha, beta, 1));
-              if(v < beta) {
-                beta = v;
-                index = nextStates.indexOf(g);
-              }
+              v = Math.min(v, minmax(g, depth-1, alpha, beta, 1));
+              beta = Math.min(v, beta);
                 if(beta <= alpha)
                     break;
             }
@@ -81,41 +82,50 @@ public class Player {
 
     public int eval(GameState gameState, int player) {
         final int n = gameState.BOARD_SIZE;
-        int[] combinations = new int[10];
+        int[][] combinations = new int[10][2];
 
         // check rows
         for(int i = 0; i < n; i++) {
-          int power = 1;
             for(int j = 0; j < n; j++) {
-                combinations[i] += checkCell(gameState, player, i, j);
-                combinations[4 + i] += checkCell(gameState, player, j, i);
+                checkMarker(gameState, combinations[i], i, j);
+                checkMarker(gameState, combinations[4 + i], j, i);
             }
-            combinations[8] += checkCell(gameState, player, i, i);
-            combinations[9] += checkCell(gameState, player, n - i, i);
+            //diagonals
+            checkMarker(gameState, combinations[8], i, i);
+            checkMarker(gameState, combinations[9], n - i - 1, i);
+
         }
-        int max = 0;
-        System.err.println("New state");
-        for(int i : combinations) {
-          System.err.println("Comb: " + i);
-          if(i > max) {
-            max = i;
-          }
+
+        int score = 0;
+        int[] tup = new int[2];
+
+        for(int[] tuple : combinations) {
+          int val = (int)Math.pow(10,tuple[0]) - (int)Math.pow(10,tuple[1]);
+
+          score += val;
         }
-        System.err.println("-_-_-_-_-_-_-_-_");
+
+        if (player == 1) {
+        }
+        else {
+        }
+        // System.err.println("Player: " + player + " Tuple: [" + tup[0] +";" + tup[1] + "] Points: " + score);
+        // System.err.println("-_-_-_-_-_-_-_-_");
 
         //return Math.max(Math.max(row, col), Math.max(row, diag));
-        return max;
+        return score;
     }
 
-    private int checkCell(GameState gameState, int player, int i, int j) {
-      if(gameState.at(i, j) == player) {
-        return 10;
+    private void checkMarker(GameState gameState, int[] markers, int row, int col) {
+      final int markerAtCell = gameState.at(row, col);
+
+      if(markerAtCell == 1) {
+        //X
+        markers[0] ++;
       }
-      else if(gameState.at(i, j) == 0) {
-        return 0;
-      }
-      else {
-        return -100;
+      else if(markerAtCell == 2) {
+        //O
+        markers[1] ++;
       }
     }
 }

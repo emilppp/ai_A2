@@ -26,28 +26,28 @@ public class Player {
          * the best next state. This skeleton returns a random move instead.
          */
         //  nextStates.elementAt(random.nextInt(nextStates.size()));
-        int alpha = -Integer.MAX_VALUE;
+        int alpha = Integer.MIN_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        int depth = 4;
+        int depth = 16;
 
         //Random random = new Random();
        // return nextStates.elementAt(random.nextInt(nextStates.size()));
 
        int index = 0;
-       int max = (gameState.getNextPlayer() == 1) ? alpha : beta;
-
        for(int i = 0; i < nextStates.size(); i++) {
-         int val = minmax(nextStates.get(i), depth, alpha, beta, gameState.getNextPlayer());
-         if(gameState.getNextPlayer() == 1) {
-           if(val > max) {
-             max = val;
+        int nextPlayer = gameState.getNextPlayer();
+        
+         int val = minmax(nextStates.get(i), depth, alpha, beta, nextPlayer);
+         if(nextPlayer == 1) {
+           if(val > alpha) {
+             alpha = val;
              index = i;
            }
          }
          else {
-           if(val < max) {
-             max = val;
+           if(val < beta) {
+             beta = val;
              index = i;
            }
          }
@@ -92,54 +92,50 @@ public class Player {
         final int n = gameState.BOARD_SIZE;
         int[][] combinations = new int[10][2];
 
-        // check rows
+
+        
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
-                checkMarker(gameState, combinations[i], player, i, j);
-                checkMarker(gameState, combinations[4 + i], player, j, i);
+                // check rows
+                if(gameState.at(i, j) == 1) {  
+                    combinations[i][0]++;
+                } else if (gameState.at(i, j) == 2){
+                    combinations[i][1]++;
+                }
+                //check col
+                if(gameState.at(j, i) == 1) {
+                    combinations[4+i][0]++;
+                }
+                else if (gameState.at(j, i) == 2){
+                    combinations[4+i][1]++;
+                }
             }
-            //diagonals
-            checkMarker(gameState, combinations[8], player, i, i);
-            checkMarker(gameState, combinations[9], player, n - i - 1, i);
+            // check diag1
+            if(gameState.at(i, i) == 1) {
+                combinations[8][0]++;
+            } else if (gameState.at(i, i) == 2){
+                combinations[8][1]++;
+            }
+            // check diag2
+            if(gameState.at(n-i-1, i) == 1) {
+                combinations[9][0]++;
+            } else if (gameState.at(n-i-1, i) == 2){
+                combinations[9][1]++;
+            }
         }
-
         int score = 0;
 
-        for(int[] tuple : combinations) {
+        for(int[] i : combinations) {
+            if((i[0] > 1 && i[1] > 1) || (i[0] == 0 && i[1] == 0)) {
+                // add nothing
+                continue;
+            }
 
-          int val = markersInLine(tuple, player);
-          score += val;
+            score += (player == 1) ? Math.pow(10, i[0]) :  -Math.pow(10, i[1]);       
         }
-        // System.err.println("Player: " + player + " Tuple: [" + tup[0] +";" + tup[1] + "] Points: " + score);
-        // System.err.println("-_-_-_-_-_-_-_-_");
 
         return score;
     }
 
-    private int markersInLine(int[] markers, int player) {
-      if((markers[0] > 0 && markers[1] > 0) || (markers[0] == 0 && markers[1] == 0)) {
-        return 0;
-      }
-      if (player == 1){
-        return (int)Math.pow(10, markers[0]);
-      } else {
-        return -(int)Math.pow(10, markers[1]);
-      }
-    }
-
-    private void checkMarker(GameState gameState, int[] markers, int player, int row, int col) {
-      final int markerAtCell = gameState.at(row, col);
-
-      if(markerAtCell == 0) {
-
-      }
-      else if(markerAtCell == player) {
-        //X
-        markers[0] ++;
-      }
-      else {
-        //O
-        markers[1] ++;
-      }
-    }
+    
 }

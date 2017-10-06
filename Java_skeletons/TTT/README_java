@@ -9,7 +9,7 @@ javac *.java
 
 # Play against self in same terminal
 mkfifo pipe
-java Main init verbose < pipe | java Main > pipe
+
 
 # Play against self in two different terminals
 # Terminal 1:
@@ -25,5 +25,3 @@ If you want two algorithms to play against each other, create two folders, folde
 mkfifo pipe
 
 java -cp folder1 Main init verbose < pipe | java -cp folder2 Main > pipe
-
-

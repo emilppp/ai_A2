@@ -9,7 +9,7 @@ import java.io.OutputStreamWriter;
 
 /**
  * Starts the game for one client.
- * 
+ *
  * Note:
  *      Use the verbose flag for outputting game information.
  *      Use the fast flag for using 100ms move deadline instead of 1000ms.
@@ -109,7 +109,7 @@ public class Main {
 
         /* Send the next move */
         String output_message = output_state.toMessage();
-        
+
         System.out.println(output_message);
 
         /* Quit if this is the end of the game */

@@ -29,19 +29,27 @@ public class Player {
         int alpha = -Integer.MAX_VALUE;
         int beta = Integer.MAX_VALUE;
 
-        int depth = 1;
+        int depth = 4;
 
         //Random random = new Random();
        // return nextStates.elementAt(random.nextInt(nextStates.size()));
 
        int index = 0;
-       int max = 0;
+       int max = (gameState.getNextPlayer() == 1) ? alpha : beta;
 
        for(int i = 0; i < nextStates.size(); i++) {
          int val = minmax(nextStates.get(i), depth, alpha, beta, gameState.getNextPlayer());
-         if(val > max) {
-           max = val;
-           index = i;
+         if(gameState.getNextPlayer() == 1) {
+           if(val > max) {
+             max = val;
+             index = i;
+           }
+         }
+         else {
+           if(val < max) {
+             max = val;
+             index = i;
+           }
          }
        }
        return nextStates.elementAt(index);
@@ -87,43 +95,49 @@ public class Player {
         // check rows
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
-                checkMarker(gameState, combinations[i], i, j);
-                checkMarker(gameState, combinations[4 + i], j, i);
+                checkMarker(gameState, combinations[i], player, i, j);
+                checkMarker(gameState, combinations[4 + i], player, j, i);
             }
             //diagonals
-            checkMarker(gameState, combinations[8], i, i);
-            checkMarker(gameState, combinations[9], n - i - 1, i);
-
+            checkMarker(gameState, combinations[8], player, i, i);
+            checkMarker(gameState, combinations[9], player, n - i - 1, i);
         }
 
         int score = 0;
-        int[] tup = new int[2];
 
         for(int[] tuple : combinations) {
-          int val = (int)Math.pow(10,tuple[0]) - (int)Math.pow(10,tuple[1]);
 
+          int val = markersInLine(tuple, player);
           score += val;
-        }
-
-        if (player == 1) {
-        }
-        else {
         }
         // System.err.println("Player: " + player + " Tuple: [" + tup[0] +";" + tup[1] + "] Points: " + score);
         // System.err.println("-_-_-_-_-_-_-_-_");
 
-        //return Math.max(Math.max(row, col), Math.max(row, diag));
         return score;
     }
 
-    private void checkMarker(GameState gameState, int[] markers, int row, int col) {
+    private int markersInLine(int[] markers, int player) {
+      if((markers[0] > 0 && markers[1] > 0) || (markers[0] == 0 && markers[1] == 0)) {
+        return 0;
+      }
+      if (player == 1){
+        return (int)Math.pow(10, markers[0]);
+      } else {
+        return -(int)Math.pow(10, markers[1]);
+      }
+    }
+
+    private void checkMarker(GameState gameState, int[] markers, int player, int row, int col) {
       final int markerAtCell = gameState.at(row, col);
 
-      if(markerAtCell == 1) {
+      if(markerAtCell == 0) {
+
+      }
+      else if(markerAtCell == player) {
         //X
         markers[0] ++;
       }
-      else if(markerAtCell == 2) {
+      else {
         //O
         markers[1] ++;
       }
